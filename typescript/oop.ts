@@ -1,11 +1,12 @@
 {
-  // ** 절차적 프로그래밍으로 커피 머신 만들어 보기
+  // ** 객체 지향으로 커피 머신 만들어 보기
   type CoffeeCup = {
     shots: number;
-    hasMilk: boolean;
+    hasMilk?: boolean;
+    hasSyrup?: boolean; 
   };
 
-  interface HomeCoffeeMaker {
+  interface CoffeeMaker {
     makeCoffee(shots: number): CoffeeCup;
   }
 
@@ -16,14 +17,14 @@
   }
 
   // CoffeeMaker, CommercialCoffeeMaker라는 규격을 따르는(implements), 구현하는 CoffeeMachine 클래스
-  class CoffeeMachine implements HomeCoffeeMaker, CafeCoffeeMaker {
+  class CoffeeMachine implements CoffeeMaker, CafeCoffeeMaker {
     private static BEANS_GRAM_PER_SHOT: number = 7; // *class level
-    // #BEANS_GRAM_PER_SHOT: number = 7; 이렇게도 가능 (es2019)
+    // #BEANS_GRAM_PER_SHOT: number = 7; private만 있을 경우 이렇게도 가능 (es2019)
 
     // protected : 상속받은 클래스에서 접근 가능
     protected _myCoffeeBeans: number = 0;
 
-    constructor(
+    public constructor(
       // ts에서는 생성자에서 public, private, readonly 를 사용하면 자동으로 할당되서 보일러 플레이트(set...) 줄일 수 있다.
       private coffeeBeans: number = 0 // *instance level
     ) {
@@ -39,8 +40,8 @@
       return new CoffeeMachine(coffeeBeans);
     }
 
+    // 명시 안하면 public
     fillCoffeeBeans(beans: number) {
-      // 명시 안하면 public
       if (beans < 0) {
         throw new Error("0보다 큰 커피콩 수를 입력해주세요.");
       }
@@ -53,8 +54,7 @@
     private grindBeans(shots: number) {
       console.log(`커피 콩을 갈아넣습니다. ⚙️`);
       if (this._myCoffeeBeans < shots * CoffeeMachine.BEANS_GRAM_PER_SHOT) {
-        console.log(this._myCoffeeBeans, shots * CoffeeMachine.BEANS_GRAM_PER_SHOT);
-        throw new Error("커피콩이 부족합니다!");
+        throw new Error(`커피콩이 ${shots * CoffeeMachine.BEANS_GRAM_PER_SHOT - this._myCoffeeBeans}개 부족합니다!`);
       }
       this._myCoffeeBeans -= shots * CoffeeMachine.BEANS_GRAM_PER_SHOT;
     }
@@ -66,7 +66,7 @@
     private extract(shots: number): CoffeeCup {
       console.log(`커피를 추출합니다... 🫖`);
       return {
-        shots,  
+        shots,
         hasMilk: false,
       };
     }
@@ -76,24 +76,24 @@
       this.preheat();
       return this.extract(shots);
     }
-    
+
     clean() {
       console.log('🧼 🫧 🧴');
-    } 
+    }
   }
 
   const machine = new CoffeeMachine(100);
   const machine2 = CoffeeMachine.makeMachine(200);
   const machine3: CoffeeMachine = CoffeeMachine.makeMachine(300);
-  
+
   // 인터페이스를 이용하면 어떤 행동까지만 허용할건지 제한할 수 있고 보장할 수 있다.
-  const machine4: HomeCoffeeMaker = CoffeeMachine.makeMachine(400);
+  const machine4: CoffeeMaker = CoffeeMachine.makeMachine(400);
   // machine4.makeCoffee(1);
   // machine4.fillCoffeeBeans(1); // 오류 발생
 
   const machine5: CafeCoffeeMaker = CoffeeMachine.makeMachine(1000);
   class HomeUser {
-    constructor(private machine: HomeCoffeeMaker) {}
+    constructor(private machine: CoffeeMaker) { }
 
     makeCoffee() {
       const coffee = this.machine.makeCoffee(1);
@@ -102,7 +102,7 @@
   }
 
   class BaristaUser {
-    constructor(private machine: CafeCoffeeMaker) {}
+    constructor(private machine: CafeCoffeeMaker) { }
 
     makeCoffee() {
       const coffee = this.machine.makeCoffee(1);
@@ -115,6 +115,55 @@
   const homeUser = new HomeUser(machine4);
   const barista = new BaristaUser(machine5);
 
-  homeUser.makeCoffee();
-  barista.makeCoffee();
+  // homeUser.makeCoffee();
+  // barista.makeCoffee();
+
+  // ===== 상속 받아서 재사용하기 ===== 
+  class LatteMachine extends CoffeeMachine {
+    constructor(beans: number, public readonly serialNumber: string) {
+      super(beans);
+    }
+
+    private steamMilk(): void {
+      console.log('우유 거품을 부어 넣습니다. 🥛');
+    }
+
+    makeCoffee(shots: number): CoffeeCup {
+      const coffee = super.makeCoffee(shots);
+      this.steamMilk();
+      return {
+        ...coffee,
+        hasMilk: true,
+      }
+    }
+  }
+
+  const latteMachine = new LatteMachine(100, 'a-10');
+  const latte = latteMachine.makeCoffee(1);
+
+  // ===== 다형성 =====
+  class VanillaCoffeeMachine extends CoffeeMachine {
+    private putVanillaSyrup(): void {
+      console.log('바닐라 시럽을 넣습니다. 🍯');
+    }
+
+    makeCoffee(shots: number): CoffeeCup {
+      const coffee = super.makeCoffee(shots);
+      this.putVanillaSyrup()
+      return {
+        ...coffee,
+        hasSyrup: true, 
+      }
+    }
+  }
+  
+  const machines: CoffeeMaker[] = [
+    new CoffeeMachine(10),
+    new LatteMachine(10, 'a-10'),
+    new VanillaCoffeeMachine(10),
+  ]
+
+  machines.forEach(machine => {
+    console.log(machine.makeCoffee(1));
+  })  
 }
