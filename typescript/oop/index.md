@@ -11,3 +11,5 @@
 - [절차적 프로그래밍 사용해보기](./without-oop.ts)
 - [객체 지향 프로그래밍 사용해보기(OOP 4원칙)](./oop.ts)
   - [조합 사용해보기](./composition.ts)
+  - [추상 클래스 사용해보기](./abstract.ts)
+  - [stack 자료구조를 class로 간단하게 만들어보기](./stack.ts)
