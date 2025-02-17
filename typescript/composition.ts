@@ -26,13 +26,27 @@
     addMilk(cup: CoffeeCup): CoffeeCup;
   }
 
+  class NoMilk implements milkProvider {
+    addMilk(cup: CoffeeCup): CoffeeCup {
+      return cup;
+    }
+  }
+
+  class NoSyrup implements syrupProvider {
+    addVanillaSyrup(cup: CoffeeCup): CoffeeCup {
+      return cup;
+    }
+  }
+
 
   class CoffeeMachine implements CoffeeMaker, CafeCoffeeMaker {
     private static BEANS_GRAM_PER_SHOT: number = 7;
     protected _myCoffeeBeans: number = 0;
 
     public constructor(
-      private coffeeBeans: number = 0
+      private coffeeBeans: number = 0,
+      private milk: milkProvider,
+      private syrup: syrupProvider,
     ) {
       console.log(`☕️ 커피 머신 생성됨: 커피 콩 ${this.coffeeBeans}개`);
       this._myCoffeeBeans = coffeeBeans;
@@ -40,10 +54,6 @@
 
     get myCoffeeBeans() {
       return `${this._myCoffeeBeans}개`;
-    }
-
-    static makeMachine(coffeeBeans: number) {
-      return new CoffeeMachine(coffeeBeans);
     }
 
     fillCoffeeBeans(beans: number) {
@@ -79,7 +89,9 @@
     makeCoffee(shots: number): CoffeeCup {
       this.grindBeans(shots);
       this.preheat();
-      return this.extract(shots);
+      const coffee = this.extract(shots);
+      const syrupAddedCoffee = this.syrup.addVanillaSyrup(coffee);
+      return this.milk.addMilk(syrupAddedCoffee);
     }
 
     clean() {
@@ -145,67 +157,21 @@
     }
   }
 
-
-  class LatteMachine extends CoffeeMachine {
-    constructor(
-      private beans: number,
-      public readonly serialNumber: string,
-      // DI (Dependency Injection)
-      private milkSteamer: MilkSteamer) {
-      super(beans);
-    }
-
-    makeCoffee(shots: number): CoffeeCup {
-      const coffee = super.makeCoffee(shots);
-      const latte = this.milkSteamer.addMilk(coffee)
-
-      return latte;
-    }
-  }
-
-  class VanillaCoffeeMachine extends CoffeeMachine {
-    constructor(private beans: number,
-      public readonly serialNumber: string,
-      // DI (Dependency Injection) - 생성자 주입
-      private vanillaSyrupMixer: VanillaSyrupMixer) {
-      super(beans);
-    }
-
-    makeCoffee(shots: number): CoffeeCup {
-      const coffee = super.makeCoffee(shots);
-      const vanillaCoffee = this.vanillaSyrupMixer.addVanillaSyrup(coffee);
-      return vanillaCoffee;
-    }
-  }
-
-  class VanillaLatteMachine extends CoffeeMachine {
-    constructor(
-      private beans: number,
-      public readonly serialNumber: string,
-      // 인터페이스를 통해 클래스 간의 타이트한 의존성을 decoupling한다.
-      private milk: milkProvider,
-      private syrup: syrupProvider) {
-      super(beans);
-    }
-
-    makeCoffee(shots: number): CoffeeCup {
-      const coffee = super.makeCoffee(shots);
-      const latte = this.milk.addMilk(coffee)
-      const vanillaLatte = this.syrup.addVanillaSyrup(latte);
-
-      return vanillaLatte;
-    }
-  }
-
   // milk
   const milkMaker = new MilkSteamer();
   const fancyMilkMaker = new FancyMilkSteamer();
+  const noMilk = new NoMilk();
 
+  // syrup
   const vanillaSyrupMixer = new VanillaSyrupMixer();
   const vanillaBeanSyrupMixer = new VanillaBeanSyrupMixer();
+  const noSyrup = new NoSyrup();
 
-  const vanillaLatteMachine = new VanillaLatteMachine(23, "1234567890", milkMaker, vanillaSyrupMixer);
-  const expensiveVanillaLatteMachine = new VanillaLatteMachine(23, "1234567890", fancyMilkMaker, vanillaBeanSyrupMixer);
+  // coffee machine
+  const latteMachine = new CoffeeMachine(23, milkMaker, noSyrup);
+  const vanillaCoffeeMachine = new CoffeeMachine(23, noMilk, vanillaSyrupMixer);
+  const vanillaLatteMachine = new CoffeeMachine(23, milkMaker, vanillaSyrupMixer);
+  const expensiveVanillaLatteMachine = new CoffeeMachine(23, fancyMilkMaker, vanillaBeanSyrupMixer);
 }
 
 
