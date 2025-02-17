@@ -1,5 +1,5 @@
 // 상속의 문제점: 수직적인 관계 - 부모 클래스에 의존하는 관계
-// js는 클래스의 다중 상속을 직접적으로 지원하지 않는다. 즉, "하나의 클래스는 오직 하나의 부모 클래스만 갖는다.
+// js는 클래스의 다중 상속을 직접적으로 지원하지 않는다. 즉, "하나의 클래스는 오직 하나의 부모 클래스만 갖는다."
 // 상속의 대안: **Composition (조합)**
 {
   type CoffeeCup = {
@@ -17,6 +17,15 @@
     fillCoffeeBeans(beans: number): void;
     clean(): void;
   }
+
+  interface syrupProvider {
+    addVanillaSyrup(cup: CoffeeCup): CoffeeCup;
+  }
+
+  interface milkProvider {
+    addMilk(cup: CoffeeCup): CoffeeCup;
+  }
+
 
   class CoffeeMachine implements CoffeeMaker, CafeCoffeeMaker {
     private static BEANS_GRAM_PER_SHOT: number = 7;
@@ -83,7 +92,21 @@
       console.log('우유 거품을 부어 넣습니다. 🥛');
     }
 
-    putMilk(cup: CoffeeCup) {
+    addMilk(cup: CoffeeCup) {
+      this.steamMilk();
+      return {
+        ...cup,
+        hasMilk: true,
+      }
+    }
+  }
+
+  class FancyMilkSteamer {
+    private steamMilk(): void {
+      console.log('고오오오급 우유 거품을 더 부드럽게 부어 넣습니다. 🥛🥛');
+    }
+
+    addMilk(cup: CoffeeCup) {
       this.steamMilk();
       return {
         ...cup,
@@ -98,7 +121,7 @@
       return true;
     }
 
-    putVanillaSyrup(cup: CoffeeCup) {
+    addVanillaSyrup(cup: CoffeeCup) {
       const syrup = this.getVanillaSyrup();
       return {
         ...cup,
@@ -106,6 +129,22 @@
       }
     }
   }
+
+  class VanillaBeanSyrupMixer {
+    private getVanillaSyrup(): boolean {
+      console.log(`바닐라 빈을 추출하여 고급 바닐라 시럽을 만듭니다...🫛🥣🍨`)
+      return true;
+    }
+
+    addVanillaSyrup(cup: CoffeeCup) {
+      const syrup = this.getVanillaSyrup();
+      return {
+        ...cup,
+        hasSyrup: syrup
+      }
+    }
+  }
+
 
   class LatteMachine extends CoffeeMachine {
     constructor(
@@ -118,7 +157,7 @@
 
     makeCoffee(shots: number): CoffeeCup {
       const coffee = super.makeCoffee(shots);
-      const latte = this.milkSteamer.putMilk(coffee)
+      const latte = this.milkSteamer.addMilk(coffee)
 
       return latte;
     }
@@ -127,14 +166,14 @@
   class VanillaCoffeeMachine extends CoffeeMachine {
     constructor(private beans: number,
       public readonly serialNumber: string,
-      // DI (Dependency Injection)
+      // DI (Dependency Injection) - 생성자 주입
       private vanillaSyrupMixer: VanillaSyrupMixer) {
       super(beans);
     }
 
     makeCoffee(shots: number): CoffeeCup {
       const coffee = super.makeCoffee(shots);
-      const vanillaCoffee = this.vanillaSyrupMixer.putVanillaSyrup(coffee);
+      const vanillaCoffee = this.vanillaSyrupMixer.addVanillaSyrup(coffee);
       return vanillaCoffee;
     }
   }
@@ -143,20 +182,30 @@
     constructor(
       private beans: number,
       public readonly serialNumber: string,
-      // DI (Dependency Injection)
-      private milkSteamer: MilkSteamer,
-      private vanillaSyrupMixer: VanillaSyrupMixer) {
+      // 인터페이스를 통해 클래스 간의 타이트한 의존성을 decoupling한다.
+      private milk: milkProvider,
+      private syrup: syrupProvider) {
       super(beans);
     }
 
     makeCoffee(shots: number): CoffeeCup {
       const coffee = super.makeCoffee(shots);
-      const latte = this.milkSteamer.putMilk(coffee)
-      const vanillaLatte = this.vanillaSyrupMixer.putVanillaSyrup(latte);
+      const latte = this.milk.addMilk(coffee)
+      const vanillaLatte = this.syrup.addVanillaSyrup(latte);
 
       return vanillaLatte;
     }
   }
+
+  // milk
+  const milkMaker = new MilkSteamer();
+  const fancyMilkMaker = new FancyMilkSteamer();
+
+  const vanillaSyrupMixer = new VanillaSyrupMixer();
+  const vanillaBeanSyrupMixer = new VanillaBeanSyrupMixer();
+
+  const vanillaLatteMachine = new VanillaLatteMachine(23, "1234567890", milkMaker, vanillaSyrupMixer);
+  const expensiveVanillaLatteMachine = new VanillaLatteMachine(23, "1234567890", fancyMilkMaker, vanillaBeanSyrupMixer);
 }
 
 
