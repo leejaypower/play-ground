@@ -10,6 +10,11 @@ let anything: any = 0;
 function throwError(message: string): never {
   throw new Error(message);
 }
+// (never 타입은 error가 아니라 exception에 더 어울리는 타입 : 
+// error는 개발자 실수로 발생하는 것이고, exception은 미처 예상치 못한 것에 가까움
+// 예를 들어 switch문 안에서 절대로 default로 오지 말아야 하는 경우, 개발자들이 모든 case에 대해 코드를 구현하도록 강제 해야 하는 경우
+// 이런 경우 never 타입을 사용할 수 있음)
+
 
 // ✔️ object 타입도 구체적인 타입이 아니기 때문에 쓰지 않는 것이 좋다.
 let obj: object = {};
@@ -42,9 +47,9 @@ tuple[0] // 1
 tuple[1] // 'hello'
 
 // 혹은 이렇게 사용하면 좀 더 낫긴 하다.
-const [number, string] = tuple;
-number // 1
-string // 'hello'
+const [numberValue, stringValue] = tuple;
+numberValue // 1
+stringValue // 'hello'
 // 이 형태를 보면 react의 useState가 생각남
 // function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>] { ... }
 // 무언가 동적으로 리턴할때 class나 interface로 묶기가 애매하고, 동적으로 관련있는 다른 타입의 데이터를 묶어서 사용할 경우 정도만 튜플이 유용해보임
