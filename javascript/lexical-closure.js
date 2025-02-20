@@ -21,14 +21,13 @@ function outer() {
   };
 }
 
-
 // ** 클로저와 렉시컬 환경 **
 function makeCounter() {
-    let count = 0;  // 이 변수는 반환된 함수의 렉시컬 환경에 포함됨
-    
-    return function() {
-      return count++;  // 외부 함수의 변수에 접근 가능
-    };
+  let count = 0; // 이 변수는 반환된 함수의 렉시컬 환경에 포함됨
+
+  return function () {
+    return count++; // 외부 함수의 변수에 접근 가능
+  };
 }
 
 const counter = makeCounter();
@@ -36,19 +35,19 @@ console.log(counter()); // 0
 console.log(counter()); // 1
 
 function createFamily() {
-    let familyName = "김";  // 렉시컬 환경에 저장
-    
-    return {
-        // 화살표 함수의 this와 렉시컬 환경은 다른 개념
-        getFamilyName: () => {
-            return familyName;  // 렉시컬 환경에서 familyName을 찾음
-        },
-        
-        // 클로저를 통한 private 변수 구현
-        setFamilyName: (newName) => {
-            familyName = newName;
-        }
-    };
+  let familyName = "김"; // 렉시컬 환경에 저장
+
+  return {
+    // 화살표 함수의 this와 렉시컬 환경은 다른 개념
+    getFamilyName: () => {
+      return familyName; // 렉시컬 환경에서 familyName을 찾음
+    },
+
+    // 클로저를 통한 private 변수 구현
+    setFamilyName: (newName) => {
+      familyName = newName;
+    },
+  };
 }
 
 const family = createFamily();
