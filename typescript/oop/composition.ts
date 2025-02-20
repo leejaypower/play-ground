@@ -18,6 +18,8 @@
     clean(): void;
   }
 
+  // 각각의 클래스가 하나의 책임만 가진다. 
+  // 그리고 추상화 - 구현하는 쪽에서 방식을 정의할 수 있다.
   interface syrupProvider {
     addVanillaSyrup(cup: CoffeeCup): CoffeeCup;
   }
@@ -168,6 +170,8 @@
   const noSyrup = new NoSyrup();
 
   // coffee machine
+  // 각각의 기능(우유 스티머, 시럽 믹서)이 독립적인 클래스로 분리되어 있어서 필요에 따라 조합할 수 있다.
+  // 기존 코드를 가지고 조합만으로 새로운 클래스를 만든다. 확장성 up
   const latteMachine = new CoffeeMachine(23, milkMaker, noSyrup);
   const vanillaCoffeeMachine = new CoffeeMachine(23, noMilk, vanillaSyrupMixer);
   const vanillaLatteMachine = new CoffeeMachine(23, milkMaker, vanillaSyrupMixer);

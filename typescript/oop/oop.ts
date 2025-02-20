@@ -141,7 +141,7 @@
   const latteMachine = new LatteMachine(100, 'a-10');
   const latte = latteMachine.makeCoffee(1);
 
-  // ===== 다형성 =====
+
   class VanillaCoffeeMachine extends CoffeeMachine {
     private putVanillaSyrup(): void {
       console.log('바닐라 시럽을 넣습니다. 🍯');
@@ -156,7 +156,9 @@
       }
     }
   }
-  
+
+  // ===== 다형성 ===== 
+  // CoffeeMaker 인터페이스만 알고 있지만, 실제로는 각각 다른 구현체들이 자신만의 방식으로 커피를 만들 수 있다.
   const machines: CoffeeMaker[] = [
     new CoffeeMachine(10),
     new LatteMachine(10, 'a-10'),
