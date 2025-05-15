@@ -13,7 +13,7 @@ function throwError(message: string): never {
 // (never 타입은 error가 아니라 exception에 더 어울리는 타입 : 
 // error는 개발자 실수로 발생하는 것이고, exception은 미처 예상치 못한 것에 가까움
 // 예를 들어 switch문 안에서 절대로 default로 오지 말아야 하는 경우, 개발자들이 모든 case에 대해 코드를 구현하도록 강제 해야 하는 경우
-// 이런 경우 never 타입을 사용할 수 있음)
+// 이런 경우 never 타입을 사용할 수 있음 - 엄격한 타입 검사를 목적으로 명시하는 경우)
 
 
 // ✔️ object 타입도 구체적인 타입이 아니기 때문에 쓰지 않는 것이 좋다.
@@ -65,7 +65,7 @@ function move(direction: Direction) {
 move('left');
 move('right');
 
-// ✔️ Intersection Type
+// ✔️ Intersection Type - 타입 교차
 type Position = { x: number; y: number };
 type Moved = { distance: number; direction: Direction };
 
@@ -102,9 +102,19 @@ let day: Days = Days.MONDAY;
 day = Days.TUESDAY;
 day = 1; // 가능
 
-// enum vs as const
-// enum : 런타임에 실제 객체로 존재함. 단순한 상수를 정의하는 용도로는 as const보다 비효율적. 런타임에서 참조해야할 때 사용하면 좋다.
+// 🥊 enum VS as const VS const enum 
+// enum : 런타임에 실제 객체로 존재함. 즉 값으로 해석될 수 있다. 단순한 상수를 정의하는 용도로는 as const보다 비효율적. 런타임에서 참조해야할 때 사용하는게 좋다.
+// 컴파일 될 때 즉시 실행 함수(IIFE)로 바뀌게 되는데 성능에 영향을 줄 수 있다. tree shaking 불가.
+// 아래와 같이 역방향 접근이 가능하다.
+Days[2] // TUESDAY
+Days[100] // undefined - 이렇게 해도 컴파일 에러는 발생하지 않는다!!
+
 // as const: readonly 속성 자동 적용됨. 런타임에 영향 없음.
+
+// const enum: 빌드 시 참조값만 남기 때문에 tree shaking이 된다.
+// 역방향 접근 불가해서 enum의 해당 문제를 예방할 수 있다.
+// 아래와 같은 문제가 있다.
+const myDay: Days = 100; // Days에 100이 없지만 에러가 발생하지 않는다!!
 
 // ✔️ type assertion
 // 200% 타입을 장담할 수 있을 때 사용
@@ -116,7 +126,6 @@ const result = jsStrFunc()!;
 console.log((result as string).length);
 console.log((<string>result).length);
 console.log(result!.length);
-
 
 
 
