@@ -1,4 +1,24 @@
 {
+  // Generic : 일반적인 것, 즉 일반화된 데이터 타입!
+  // 함수, 타입, 클래스 등에서 내부적으로 사용될 타입을 미리 정해두지 않고 "타입 변수"를 사용해 그 자리를 비워둔 다음에 
+  // 실제로 그 값을 사용할 때 외부에서 타입 변수 자리에 타입을 지정하여 사용하는 방식
+  // 외부에서 값을 생성할 때 제네릭을 이용해 원하는 타입으로 특정할 수 있다.
+  // 코드의 재사용성을 높이고 타입 추론을 하는데 사용한다. (아래의 예시를 보면 바로 와닿음)
+  export interface ApiResponseData<Data> {
+    data: Data;
+    statusCode: string;
+    statusMessage?: string;
+  }
+
+  export const fetchPrice = (): Promise<ApiResponse<Price>> = {
+    // ...
+  }
+  export const fetchOrder = (): Promise<ApiResponse<Order>> = {
+    // ...
+  }
+}
+
+{
   // ❌ 타입 안전하지 않은 코드
   function checkNotNullBad(arg: any): any {
     if (arg == null) {
@@ -8,6 +28,8 @@
   }
 
   // ✅ 타입 안전한 코드 : generic 타입을 사용 
+  // 참고로 tsx에서는 화살표 함수에서 제네릭을 사용하면 에러가 발생한다(제네릭 꺾쇠와 element tag 꺾쇠와 혼동)
+  // extends 키워드를 사용하면 되긴 하지만 보통 제네릭을 사용할 때는 function 키워드로 선언한다.
   function checkNotNull<T>(arg: T): T {
     if (arg == null) {
       throw new Error('not valid');
@@ -72,6 +94,7 @@
   }
 
   // ✅ 제네릭에 조건을 걸어서 좀 더 제한적인 범위 내에서 사용할 수 있다.
+  // 이를 위해서 특정 타입을 상속해야한다.
   function payGood<T extends Employee>(employee: T): T {
     employee.pay();
     return employee;
