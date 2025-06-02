@@ -18,7 +18,6 @@ export default function SignUpForm() {
     field: keyof Form
   ) => {
     const inputValue = event.target?.value || "";
-
     setFormValue((prev) => ({ ...prev, [field]: inputValue }));
 
     // const isValidEmailValue = (value: string) => !!value.includes("@");

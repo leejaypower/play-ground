@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import Filter3 from "./Filter3";
+import Mirror2 from "./Modal.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Filter3 />
+    <Mirror2 />
   </StrictMode>
 );
