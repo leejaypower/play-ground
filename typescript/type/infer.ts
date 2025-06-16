@@ -60,8 +60,7 @@
 
   // 메뉴의 name과 route의 name이 동일해야, 메뉴 클릭 시 올바른 라우트로 이동하거나,
   // 현재 라우트에 따라 메뉴를 활성화할 때 name을 기준으로 비교하기 쉽다.
-  // 하지만 그저 string으로 정의되어있기 때문에 서로 다른 값이 입력되어도 컴파일 단계에서 에러가 나지 않는다.
-  // (mainMenu에 "전체 주문 보기" 등이 들어간 경우 등)
+  // 하지만 그저 string으로 정의되어있기 때문에 다른 값이 입력되어도 컴파일 단계에서 에러가 나지 않는다. (mainMenu에 "전체 주문 보기" 등이 들어간 경우처럼 잘못된 상황)
   // 이런 경우 런타임에서도 존재하지 않는 권한에 대한 문제로 잘못 인지될 수 있다.
   // 이를 개선하기 위해서는 infer를 사용하여 타입을 추론하는 것이 좋다.
 }
@@ -110,34 +109,12 @@
         name: string;
         path: string;
         component?: string;
-        pages: RouteBase[];
+        pages: RouteBase[]; // mainMenu
       }
-    | { name: PermissionNames; path: string; component?: string };
+    | { name: PermissionNames; path: string; component?: string }; // subMenu
 
-  // menu에 따라 타입을 알맞게 추론하기 위해 infer 사용... 인데 너무 헷갈린다
-  type UnpackMenuNames1<T extends ReadonlyArray<MenuItem>> =
-    // 1. T가 MenuItem의 배열인지 확인
-    T extends ReadonlyArray<infer U>
-      ? U extends MainMenu
-        ? // 2. U가 MainMenu 타입인지 확인
-          U["SubMenus"] extends infer V
-          ? // 3. MainMenu의 SubMenus 필드를 V로 추론
-            V extends ReadonlyArray<SubMenu>
-            ? // 4. V가 SubMenu의 배열인지 확인
-              UnpackMenuNames1<V> // 5. SubMenu 배열이면 재귀적으로 UnpackMenuNames 호출 => SubMenu 속 SubMenu가 없으므로 name이 반환
-            : U["name"] // 6. SubMenus가 없으면 MainMenu의 name 반환
-          : never
-        : // 7. SubMenus 필드가 없으면 never
-        U extends SubMenu
-        ? // 8. U가 SubMenu 타입인지 확인
-          U["name"]
-        : // 9. SubMenu면 name 반환
-          never
-      : // 10. U가 MainMenu도 아니고, SubMenu도 아닌 경우 never
-        never;
-  // 11. T가 배열이 아니면 never
-
-  type UnpackMenuNames2<T extends ReadonlyArray<MenuItem>> =
+  // menu에 따라 타입을 알맞게 추론하기 위해 infer 사용
+  type UnpackMenuNames<T extends ReadonlyArray<MenuItem>> =
     // 1. T가 MenuItem의 배열인지 확인
     T extends ReadonlyArray<infer U>
       ? // 2. U가 MainMenu인지 확인
@@ -146,7 +123,7 @@
           U["SubMenus"] extends infer V
           ? // 4. V가 SubMenu 배열인지 확인
             V extends ReadonlyArray<SubMenu>
-            ? UnpackMenuNames2<V> // 5. 맞으면 재귀적으로 UnpackMenuNames 호출
+            ? UnpackMenuNames<V> // 5. 맞으면 재귀적으로 UnpackMenuNames 호출
             : U extends { name: infer N }
             ? N
             : never // 6. SubMenus가 없으면 MainMenu의 name 반환
