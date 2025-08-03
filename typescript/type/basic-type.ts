@@ -1,7 +1,7 @@
 // ** 🧙‍♀️ 아는 다리도 두드려보고 건너기 - 기본 타입 복습 **
 
 // 타입스크립트에서 자바스크립트 라이브러리를 사용하는 경우 쓰일 수 있지만
-// 웬만하면 쓰지말자. 가능하면 구체적으로 타입을 지정해서 사용 
+// 웬만하면 쓰지말자. 가능하면 구체적으로 타입을 지정해서 사용
 let notSure: unknown = 0;
 let anything: any = 0;
 
@@ -10,11 +10,10 @@ let anything: any = 0;
 function throwError(message: string): never {
   throw new Error(message);
 }
-// (never 타입은 error가 아니라 exception에 더 어울리는 타입 : 
+// (never 타입은 error가 아니라 exception에 더 어울리는 타입 :
 // error는 개발자 실수로 발생하는 것이고, exception은 미처 예상치 못한 것에 가까움
 // 예를 들어 switch문 안에서 절대로 default로 오지 말아야 하는 경우, 개발자들이 모든 case에 대해 코드를 구현하도록 강제 해야 하는 경우
 // 이런 경우 never 타입을 사용할 수 있음)
-
 
 // ✔️ object 타입도 구체적인 타입이 아니기 때문에 쓰지 않는 것이 좋다.
 let obj: object = {};
@@ -26,7 +25,7 @@ function add(num1: number, num2: number): number {
 function fetchNum(id: string): Promise<number> {
   return new Promise((resolve, reject) => {
     resolve(100);
-  })
+  });
 }
 
 // ✔️ Rest Parameter를 사용하면 인자 수와 상관없는 액션을 취할 수도 있다.
@@ -36,24 +35,22 @@ function addNumbers(...numbers: number[]): number {
 addNumbers(1, 2, 3, 4, 5);
 addNumbers(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
-
 const stringArr: readonly string[] = ['hello', 'world'];
 const numberArr: Array<number> = [1, 2, 3];
 
-// ✔️ 언제 튜플을 사용해야할까?  tuple은 interface, type alias, class로 대체 가능 
+// ✔️ 언제 튜플을 사용해야할까?  tuple은 interface, type alias, class로 대체 가능
 const tuple: [number, string] = [1, 'hello'];
 // 인덱스로 값을 접근한다면 가독성이 떨어진다..
-tuple[0] // 1
-tuple[1] // 'hello'
+tuple[0]; // 1
+tuple[1]; // 'hello'
 
 // 혹은 이렇게 사용하면 좀 더 낫긴 하다.
 const [numberValue, stringValue] = tuple;
-numberValue // 1
-stringValue // 'hello'
+numberValue; // 1
+stringValue; // 'hello'
 // 이 형태를 보면 react의 useState가 생각남
 // function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>] { ... }
 // 무언가 동적으로 리턴할때 class나 interface로 묶기가 애매하고, 동적으로 관련있는 다른 타입의 데이터를 묶어서 사용할 경우 정도만 튜플이 유용해보임
-
 
 // ✔️ Union
 type Direction = 'left' | 'right' | 'up' | 'down';
@@ -65,13 +62,56 @@ function move(direction: Direction) {
 move('left');
 move('right');
 
+{
+  type Card = {
+    card: string;
+  };
+
+  type Account = {
+    account: string;
+  };
+
+  function pay(type: Card | Account) {
+    // do something
+  }
+
+  pay({ card: 'kookmin', account: 'jay' }); // 에러 미발생
+}
+// ! 타입을 집합 관점으로 볼때 union은 "합집합" 이다.
+// ! 속성이 하나씩만 할당된 상태도 허용하지만 속성이 모두 포함되어도 타입에러 발생하지 않음
+// pay({ card: 'kookmin', account: 'jay' });
+
+// 서로 호환되지 않도록 만들어주기 위해서는 타입들이 서로 포함 관계를 가지지 않도록 정의해야한다.
+// -> 타입마다 구분할 수 있는 판별자를 달아 주어 포함 관계 제거할 수 있다. 아래를 보자.
+
+type Card = {
+  type: 'card';
+  card: string;
+};
+
+type Account = {
+  type: 'account';
+  account: string;
+};
+
+function pay(type: Card | Account) {
+  // do something
+}
+
+pay({ type: 'card', card: 'kookmin', account: 'jay' }); // 에러 발생 굿
+
 // ✔️ Intersection Type
 type Position = { x: number; y: number };
 type Moved = { distance: number; direction: Direction };
 
 type NewPosition = Position & Moved;
 
-const newPosition: NewPosition = { x: 10, y: 20, distance: 10, direction: 'left' };
+const newPosition: NewPosition = {
+  x: 10,
+  y: 20,
+  distance: 10,
+  direction: 'left',
+};
 
 // ✔️ Enum
 // 'javascript'에서 enum 대신 사용하는 방법
@@ -116,7 +156,3 @@ const result = jsStrFunc()!;
 console.log((result as string).length);
 console.log((<string>result).length);
 console.log(result!.length);
-
-
-
-
