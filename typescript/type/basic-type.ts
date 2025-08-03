@@ -85,7 +85,7 @@ move('right');
 // -> 타입마다 구분할 수 있는 판별자를 달아 주어 포함 관계 제거할 수 있다. 아래를 보자.
 
 type Card = {
-  type: 'card';
+  type: 'card'; // 다만 판별자는 unit type이어야함
   card: string;
 };
 
