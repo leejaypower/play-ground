@@ -83,4 +83,23 @@
   };
 
   obj.sayThis(); // global
+
+  // 만약 함수 내부에서 객체를 생성하고 그 객체의 메서드가 화살표 함수라면?
+  function createObject() {
+    const obj = {
+      name: 'jay',
+      sayThis: () => {
+        console.log(this); // 여기서 this는 createObject 함수의 this를 가리킴
+        // 가장 가까운 함수 스코프가 createObject 함수이기에
+      },
+      sayThis2: function () {
+        console.log(this);
+      },
+    };
+    return obj;
+  }
+
+  createObject.sayThis(); // global 출력: 객체는 스코프 체인이 없어서 건너뜀 -> createObejct 함수의 this를 가리킴 -> global
+  createObject.call({ name: 'dog' }).sayThis(); // { name: 'dog' } 가 출력: 객체는 스코프 체인이 없어서 건너뜀 -> createObejct 함수의 this를 가리킴 -> 강제로 바인딩한 this를 가리킴
+  createObject.call({ name: 'dog' }).sayThis2(); // obj가 출력: 일반 함수라 호출 주체가 그냥 obj가 됨 -> this도 obj
 }

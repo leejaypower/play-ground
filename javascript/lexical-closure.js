@@ -22,6 +22,7 @@ function outer() {
 }
 
 // ** 클로저와 렉시컬 환경 **
+// 렉시컬 환경 = 현재 스코프 + 상위 스코프(렉시컬 스코프) 참조
 function makeCounter() {
   let count = 0; // 이 변수는 반환된 함수의 렉시컬 환경에 포함됨
 
