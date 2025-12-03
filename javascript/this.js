@@ -59,8 +59,9 @@
   caller(); // undefined 출력 => this를 잃어버림. 왜? 함수가 원래의 컨텍스트와 분리되어 호출되면서 this 바인딩이 끊어짐
 
   // 함수의 this를 counter 인스턴스로 고정시키는 방법
-  const caller2 = counter.increase.bind(counter);
+  const caller2 = counter.increase.bind(counter); // bind는 this를 고정시키고 새로운 함수를 반환
   caller2();
+
   counter.increase.apply(counter);
   counter.increase.call(counter);
 
