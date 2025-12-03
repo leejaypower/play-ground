@@ -1,4 +1,4 @@
-// ** 렉시컬 스코프 **
+// ** 렉시컬(lexical) 스코프: 코드가 "작성된 위치"에서 결정되는 상위 스코프 **
 // - 클로저가 동작하는 기반
 let x = 1;
 
@@ -15,7 +15,7 @@ first();
 
 // ** 클로저 **
 function outer() {
-  const value = "outer value";
+  const value = 'outer value';
   return function inner() {
     console.log(value); // 클로저로 인해 outer의 value에 접근 가능
   };
@@ -35,7 +35,7 @@ console.log(counter()); // 0
 console.log(counter()); // 1
 
 function createFamily() {
-  let familyName = "김"; // 렉시컬 환경에 저장
+  let familyName = '김'; // 렉시컬 환경에 저장
 
   return {
     // 화살표 함수의 this와 렉시컬 환경은 다른 개념
@@ -53,5 +53,5 @@ function createFamily() {
 const family = createFamily();
 console.log(family.getFamilyName()); // "김"
 
-family.setFamilyName("이"); // 클로저: 선언된 시점에 있는 환경을 기억함. 즉 이 함수가 선언된 시점에 있는 name을 기억함.
+family.setFamilyName('이'); // 클로저: 선언된 시점에 있는 환경을 기억함. 즉 이 함수가 선언된 시점에 있는 name을 기억함.
 console.log(family.getFamilyName()); // "이"
