@@ -101,5 +101,5 @@
 
   createObject.sayThis(); // global 출력: 객체는 스코프 체인이 없어서 건너뜀 -> createObejct 함수의 this를 가리킴 -> global
   createObject.call({ name: 'dog' }).sayThis(); // { name: 'dog' } 가 출력: 객체는 스코프 체인이 없어서 건너뜀 -> createObejct 함수의 this를 가리킴 -> 강제로 바인딩한 this를 가리킴
-  createObject.call({ name: 'dog' }).sayThis2(); // obj가 출력: 일반 함수라 호출 주체가 그냥 obj가 됨 -> this도 obj
+  createObject.call({ name: 'dog' }).sayThis2(); // obj가 출력: 일반 함수라 호출 주체가 createObject의 반환값인 obj가 됨. createObject 함수의 this를 볼 필요조차 없음 -> this가 obj
 }
