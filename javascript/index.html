@@ -4,9 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script src="this.js"></script>
+  <!-- <script src="this.js"></script> -->
+  <script src="sync-blocking.js" defer></script>
 </head>
 <body>
-  
+  <div id="log"></div>
+  <button id="button">Click me</button>
+  <button id="blockBtn">Block</button>
+  <script>
+    document.getElementById('button').addEventListener('click', () => {
+      console.log('계산 시작');
+      const result = heavyComputation();
+      console.log('계산 끝:', result);
+    });
+
+    const log = document.getElementById('log');
+    document.getElementById('blockBtn').addEventListener('click', () => {
+      log.textContent = '블로킹 시작...';
+      const start = Date.now();
+      while(Date.now() - start < 3000) {} // 3초 블로킹
+      log.textContent = '블로킹 끝!';
+    });
+  </script>
 </body>
 </html>
