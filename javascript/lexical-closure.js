@@ -56,3 +56,38 @@ console.log(family.getFamilyName()); // "김"
 
 family.setFamilyName('이'); // 클로저: 선언된 시점에 있는 환경을 기억함. 즉 이 함수가 선언된 시점에 있는 name을 기억함.
 console.log(family.getFamilyName()); // "이"
+
+{
+  // 실험 1: var는 블록을 무시
+  function test1() {
+    if (true) {
+      var x = 1;
+    }
+    console.log(x);  // 1 
+  }
+
+  // // 실험 2: let은 블록에 갇힘
+  function test2() {
+    if (true) {
+      let y = 2;
+    }
+    console.log(y);  // Error
+  }
+
+  test1();
+  test2();
+
+  // 실험 3: for문의 var
+  for (var i = 0; i < 3; i++) {
+    // var는 참조만 저장하고 값은 나중에 읽는다.
+    setTimeout(() => console.log('var:', i), 100);
+  }
+  console.log('after loop:', i);  // 3
+
+  // 실험 4: for문의 let
+  for (let j = 0; j < 3; j++) {
+    // let은 값이 스냅샷처럼 고정된다.
+    setTimeout(() => console.log('let:', j), 100);
+  }
+  console.log('after loop:', j); // Error
+}
