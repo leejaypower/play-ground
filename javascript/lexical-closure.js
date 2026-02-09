@@ -91,3 +91,117 @@ console.log(family.getFamilyName()); // "이"
   }
   console.log('after loop:', j); // Error
 }
+
+{
+  // ** 클로저와 이벤트 핸들러 **
+  function attachHandlers() {
+    const items = ['A', 'B', 'C'];
+    const container = document.getElementById('list');
+
+    items.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.textContent = item;
+
+      // 클릭 리스너가 items를 직접 참조하지 않아도 스코프 체인상 접근 가능한 모든 변수가 클로저에 포함될 가능성이 있다.
+      li.addEventListener('click', function () {
+        console.log(`Clicked: ${item}, index: ${index}`);
+      });
+
+      container.appendChild(li);
+    });
+  }
+
+
+  // 여기서 forEach는 사실상 이렇게 동작:
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const index = i;
+
+    // 콜백 함수 실행 (새로운 스코프)
+    {
+      const li = document.createElement('li');
+      li.textContent = item;
+
+      li.addEventListener('click', function () {
+        console.log(item, index);
+      });
+    }
+  }
+
+  // 실제로 items가 포함되는지 확인
+  function test1() {
+    const items = ['A', 'B', 'C'];
+
+    items.forEach((item) => {
+      const btn = document.createElement('button');
+
+      btn.addEventListener('click', function () {
+        console.log(item);
+        console.log(items);  // ← 명시적 참조
+      });
+    });
+  }
+
+  test1();
+
+
+  // 명시적 참조 안함 -> 엔진이 최적화로 제거? 대부분의 경우 안전을 위해 items가 클로저에 포함될 가능성이 있다.
+  function test2() {
+    const items = ['A', 'B', 'C'];
+
+    items.forEach((item) => {
+      const btn = document.createElement('button');
+
+      btn.addEventListener('click', function () {
+        console.log(item);  // items 참조 안 함
+      });
+    });
+  }
+
+  test2();
+
+
+  // 최적화: 이벤트 위임
+  function attachHandlers2() {
+    const items = ['A', 'B', 'C'];
+    const container = document.getElementById('list');
+
+    // HTML 먼저 생성
+    items.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      li.dataset.index = index;  // data-index 속성
+      container.appendChild(li);
+    });
+
+    // 리스너는 단 하나!
+    container.addEventListener('click', function (e) {
+      if (e.target.tagName === 'LI') {
+        const index = e.target.dataset.index;
+        const item = items[index];
+        console.log(`Clicked: ${item}, index: ${index}`);
+      }
+    });
+  }
+
+  // 최적화: WeakMap을 사용하여 메모리 최적화
+  function attachHandlers3() {
+    const items = ['A', 'B', 'C'];
+    const container = document.getElementById('list');
+    const itemMap = new WeakMap();  // 약한 참조
+
+    items.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.textContent = item;
+
+      itemMap.set(li, { item, index });  // 요소와 데이터 매핑
+
+      li.addEventListener('click', function () {
+        const data = itemMap.get(this);
+        console.log(data.item, data.index);
+      });
+
+      container.appendChild(li);
+    });
+  }
+}
