@@ -1,4 +1,23 @@
 {
+  function identity<T>(arg: T): T {
+    return arg;
+  }
+
+  type User = {
+    id: string;
+    name: string;
+  };
+
+  const num = identity<number>(42); // T = number
+  const str = identity<string>('hello'); // T = string
+  const user = identity<User>({ id: '1', name: '이제이' }); // T = User
+
+  // 타입 추론을 사용하면 타입을 명시적으로 지정하지 않아도 된다. -> 최대한 ts가 알아서 하도록 만들자
+  const typeInferred = identity(10); // T = number
+  const typeInferred2 = identity('hello'); // T = string
+  const typeInferred3 = identity({ id: '1', name: '이제이' }); // T = User
+
+  // ==== 제네릭 기본 예제 ====
   // ❌ 타입 안전하지 않은 코드
   function checkNotNullBad(arg: any): any {
     if (arg == null) {
@@ -7,23 +26,27 @@
     return arg;
   }
 
-  // ✅ 타입 안전한 코드 : generic 타입을 사용 
+  // ✅ 타입 안전한 코드 : generic 타입을 사용
   function checkNotNull<T>(arg: T): T {
     if (arg == null) {
       throw new Error('not valid');
     }
     return arg;
   }
+}
 
-
-  // ==== class에서 generic ====  
+{
+  // ==== class에서 generic ====
   interface Either<L, R> {
     left(): L;
     right(): R;
   }
 
   class SimpleEither<L, R> implements Either<L, R> {
-    constructor(private leftValue: L, private rightValue: R) { }
+    constructor(
+      private leftValue: L,
+      private rightValue: R
+    ) {}
 
     left(): L {
       return this.leftValue;
@@ -38,9 +61,7 @@
     }
   }
 
-
-
-  // ==== 제네릭 조건 ====
+  // ==== 제네릭에 조건걸기 (extends) ====
   interface Employee {
     pay(): void;
   }
@@ -77,7 +98,6 @@
     return employee;
   }
 
-
   const jay = new FullTimeEmployee();
   const hyeon = new PartTimeEmployee();
   jay.workFullTime();
@@ -95,12 +115,12 @@
   const me = {
     name: 'jay',
     age: 29,
-  }
+  };
 
   const friend = {
     name: 'hyeon',
     age: 30,
-  }
+  };
 
   // obj의 key인 속성만 올 수 있다고 강제, 그리고 그 obj[key]의 값을 리턴한다
   function getValue<T, K extends keyof T>(obj: T, key: K): T[K] {
