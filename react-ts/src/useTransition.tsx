@@ -8,22 +8,22 @@ const MODE_DESC = {
 };
 
 export default function App() {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition(); // <- 이 실험의 핵심개념!!!!!
   const [query, setQuery] = useState("");
   const [filteredItems, setFilteredItems] = useState(ITEMS);
   const [mode, setMode] = useState<"blocking" | "transition">("blocking");
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
-    setQuery(value);
+    setQuery(value); // <- input 업데이트
 
     const next = ITEMS.filter(item => item.includes(value));
 
     if (mode === "blocking") {
-      setFilteredItems(next);
+      setFilteredItems(next); // <- 리스트 필터링
     } else {
       startTransition(() => {
-        setFilteredItems(next);
+        setFilteredItems(next); // <- 리스트 필터링 (transition 레벨: 나중에 처리됨)  
       });
     }
   }
